@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { Button } from "./components/ui/button";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -15,6 +16,9 @@ function App() {
       <h1 className="text-3xl font-bold underline">
         {message || "Loading..."}
       </h1>
+      <Button className="mt-4" onClick={() => alert("Button clicked!")}>
+        Click Me
+      </Button>
     </div>
   );
 }
