@@ -17,7 +17,7 @@ function App() {
         {message || 'Loading...'}
       </h1>
       <Button className="mt-4" onClick={() => alert('Button clicked!')}>
-        Click Me
+        Click Me!
       </Button>
     </div>
   );
