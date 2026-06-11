@@ -20,15 +20,20 @@ app.get('/api/hello', (req: Request, res: Response) => {
   res.json({ message: 'Hello from the API!' });
 });
 
+const conversations = new Map<string, string>();
+
 app.post('/api/chat', async (req: Request, res: Response) => {
-  const { prompt } = req.body;
+  const { prompt, conversationId } = req.body;
   try {
     const response = await client.responses.create({
       model: 'gpt-4o-mini',
       input: prompt,
       temperature: 0.2,
       max_output_tokens: 100,
+      previous_response_id: conversations.get(conversationId),
     });
+    conversations.set(conversationId, response.id);
+
     res.json({ result: response.output_text });
   } catch (error) {
     console.error('Error generating text:', error);
