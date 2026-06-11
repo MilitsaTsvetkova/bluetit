@@ -12,7 +12,9 @@ function App() {
 
   return (
     <div className="App">
-      <h1>{message || "Loading..."}</h1>
+      <h1 className="text-3xl font-bold underline">
+        {message || "Loading..."}
+      </h1>
     </div>
   );
 }
