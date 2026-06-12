@@ -37,9 +37,9 @@ app.post('/api/chat', async (req: Request, res: Response) => {
   if (!parsedResult.success) {
     return res.status(400).json({ error: parsedResult.error.format() });
   }
-  const { prompt, conversationId } = parsedResult.data;
 
   try {
+    const { prompt, conversationId } = parsedResult.data;
     const response = await client.responses.create({
       model: 'gpt-4o-mini',
       input: prompt,
@@ -52,7 +52,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     res.json({ result: response.output_text });
   } catch (error) {
     console.error('Error generating text:', error);
-    res.status(500).json({ error: 'Failed to generate text' });
+    res.status(500).json({ error: 'Failed to generate a response' });
   }
 });
 
