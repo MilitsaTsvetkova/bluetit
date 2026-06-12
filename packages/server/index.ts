@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express, { type Request, type Response } from 'express';
+import z from 'zod';
 
 dotenv.config();
 
@@ -22,8 +23,22 @@ app.get('/api/hello', (req: Request, res: Response) => {
 
 const conversations = new Map<string, string>();
 
+const schema = z.object({
+  prompt: z
+    .string()
+    .trim()
+    .min(1, 'Prompt cannot be empty')
+    .max(1000, 'Prompt is too long'),
+  conversationId: z.uuid(),
+});
+
 app.post('/api/chat', async (req: Request, res: Response) => {
-  const { prompt, conversationId } = req.body;
+  const parsedResult = schema.safeParse(req.body);
+  if (!parsedResult.success) {
+    return res.status(400).json({ error: parsedResult.error.format() });
+  }
+  const { prompt, conversationId } = parsedResult.data;
+
   try {
     const response = await client.responses.create({
       model: 'gpt-4o-mini',
