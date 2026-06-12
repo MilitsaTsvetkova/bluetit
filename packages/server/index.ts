@@ -5,6 +5,7 @@ import z from 'zod';
 dotenv.config();
 
 import OPENAI from 'openai';
+import { conversationRepository } from './repositories/conversations.repository';
 
 const client = new OPENAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -20,8 +21,6 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/api/hello', (req: Request, res: Response) => {
   res.json({ message: 'Hello from the API!' });
 });
-
-const conversations = new Map<string, string>();
 
 const schema = z.object({
   prompt: z
@@ -45,9 +44,13 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       input: prompt,
       temperature: 0.2,
       max_output_tokens: 100,
-      previous_response_id: conversations.get(conversationId),
+      previous_response_id:
+        conversationRepository.getConversationResponseId(conversationId),
     });
-    conversations.set(conversationId, response.id);
+    conversationRepository.setConversationResponseId(
+      conversationId,
+      response.id
+    );
 
     res.json({ result: response.output_text });
   } catch (error) {
