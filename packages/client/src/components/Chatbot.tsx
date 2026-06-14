@@ -27,13 +27,13 @@ const Chatbot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const conversationId = useRef<string>(crypto.randomUUID());
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   const onSubmit = async ({ prompt }: FormData) => {
     setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
     setIsBotTyping(true);
 
-    reset();
+    reset({ prompt: '' });
 
     const { data } = await axios.post<ChatResponse>('/api/chat', {
       prompt,
@@ -60,22 +60,23 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
   return (
-    <div>
-      <div className="flex flex-col gap-3 mb-10">
+    <div className="flex flex-col h-full">
+      <div className="flex flex-col flex-1 gap-3 mb-10 overflow-y-auto">
         {messages.map((message, index) => (
-          <p
+          <div
             onCopy={handleCopy}
             key={index}
+            ref={index === messages.length - 1 ? lastMessageRef : null}
             className={`px-3 py-1 rounded-xl ${message.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-200 text-black self-start'}`}
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
-          </p>
+          </div>
         ))}
         {isBotTyping && (
           <div className="flex self-start gap-1 px-3 py-2 bg-gray-200 rounded-xl">
@@ -95,6 +96,7 @@ const Chatbot = () => {
             required: true,
             validate: (value) => value.trim() !== '',
           })}
+          autoFocus
           className="w-full border-0 focus:outline-0 resize-none"
           placeholder="Type your message here..."
           maxLength={1000}
