@@ -51,6 +51,14 @@ const Chatbot = () => {
     }
   };
 
+  const handleCopy = (e: React.ClipboardEvent<HTMLParagraphElement>) => {
+    const selection = window.getSelection()?.toString().trim();
+    if (selection) {
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', selection);
+    }
+  };
+
   useEffect(() => {
     if (formRef.current) {
       formRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -62,6 +70,7 @@ const Chatbot = () => {
       <div className="flex flex-col gap-3 mb-10">
         {messages.map((message, index) => (
           <p
+            onCopy={handleCopy}
             key={index}
             className={`px-3 py-1 rounded-xl ${message.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-200 text-black self-start'}`}
           >
