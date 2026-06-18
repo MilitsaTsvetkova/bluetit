@@ -27,8 +27,14 @@ export const reviewController = {
       res.status(400).json({ error: 'Invalid product ID.' });
       return;
     }
-
-    const summary = await reviewService.summarizeReviews(productId);
-    res.json({ summary });
+    try {
+      const summary = await reviewService.summarizeReviews(productId);
+      res.json({ summary });
+    } catch (error) {
+      console.error('Error summarizing product reviews:', error);
+      res
+        .status((error as any).status || 500)
+        .json({ error: (error as Error).message || 'Internal server error' });
+    }
   },
 };

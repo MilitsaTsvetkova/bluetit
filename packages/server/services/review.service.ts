@@ -10,9 +10,19 @@ export const reviewService = {
     }
 
     const reviews = await reviewRepository.getProductReviews(productId);
-    return reviews;
+    const summary = await reviewRepository.getReviewSummary(productId);
+
+    return {
+      summary,
+      reviews,
+    };
   },
   summarizeReviews: async (productId: number) => {
+    const product = await productRepository.getProductById(productId);
+    if (!product) {
+      throw new Error('Product does not exist.');
+    }
+
     const existingSummary = await reviewRepository.getReviewSummary(productId);
     if (existingSummary) {
       return existingSummary;
@@ -26,15 +36,15 @@ export const reviewService = {
 
     const prompt = template.replace('{{reviews}}', joinedReviews);
 
-    const summary = await llmClient.generateText({
+    const { text: summary } = await llmClient.generateText({
       model: 'gpt-4o-mini',
       prompt,
       temperature: 0.2,
       maxTokens: 500,
     });
 
-    await reviewRepository.storeReviewSummary(productId, summary.text);
+    await reviewRepository.storeReviewSummary(productId, summary);
 
-    return summary.text;
+    return summary;
   },
 };

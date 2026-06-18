@@ -13,6 +13,7 @@ export const reviewRepository = {
       take: limit,
     });
   },
+
   storeReviewSummary(productId: number, summary: string) {
     const expiresAt = dayjs().add(7, 'days').toDate();
     const data = {
