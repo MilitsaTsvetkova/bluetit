@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './App.css';
 import ReviewList from './components/reviews/ReviewList';
@@ -12,6 +13,7 @@ function App() {
       <div className="p-4 h-screen">
         <ReviewList productId={1} />
       </div>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
