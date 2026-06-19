@@ -1,24 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { HiSparkles } from 'react-icons/hi2';
 import { Button } from '../ui/button';
 import ReviewSkeleton from './ReviewSkeleton';
 import StarRating from './StarRating';
+import {
+  reviewApi,
+  type GetReviewsResponse,
+  type SummarizeResponse,
+} from './reviewsApi';
 
 type ReviewListProps = {
   productId: number;
-};
-
-type Review = {
-  id: number;
-  author: string;
-  rating: number;
-  content: string;
-  createdAt: string;
-};
-
-type GetReviewsResponse = {
-  summary: string | null;
-  reviews: Review[];
 };
 
 const ReviewList = ({ productId }: ReviewListProps) => {
@@ -28,8 +20,16 @@ const ReviewList = ({ productId }: ReviewListProps) => {
     error,
   } = useQuery<GetReviewsResponse>({
     queryKey: ['reviews', productId],
-    queryFn: () =>
-      fetch(`/api/products/${productId}/reviews`).then((res) => res.json()),
+    queryFn: () => reviewApi.fetchReviews(productId),
+  });
+
+  const {
+    mutate: summarizeReviews,
+    data: summaryData,
+    isPending: isSummarizing,
+    error: summaryError,
+  } = useMutation<SummarizeResponse>({
+    mutationFn: () => reviewApi.summarizeReviews(productId),
   });
 
   if (isLoading) {
@@ -52,15 +52,33 @@ const ReviewList = ({ productId }: ReviewListProps) => {
     return null;
   }
 
+  const currentSummary = reviews?.summary || summaryData?.summary;
+
   return (
     <div>
       <div className="mb-5">
-        {reviews?.summary ? (
-          <p>{reviews.summary}</p>
+        {currentSummary ? (
+          <p>{currentSummary}</p>
         ) : (
-          <Button>
-            <HiSparkles /> Summarize
-          </Button>
+          <div>
+            <Button
+              onClick={() => summarizeReviews()}
+              disabled={isSummarizing}
+              className="cursor-pointer"
+            >
+              <HiSparkles /> Summarize
+            </Button>
+            {isSummarizing && (
+              <div className="py-3">
+                <ReviewSkeleton />
+              </div>
+            )}
+            {summaryError && (
+              <p className="text-red-500">
+                Could not summarize reviews. Try again!
+              </p>
+            )}
+          </div>
         )}
       </div>
 
