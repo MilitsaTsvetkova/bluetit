@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { HiSparkles } from 'react-icons/hi2';
+import { Button } from '../ui/button';
 import ReviewSkeleton from './ReviewSkeleton';
 import StarRating from './StarRating';
 
@@ -46,10 +48,20 @@ const ReviewList = ({ productId }: ReviewListProps) => {
     );
   }
 
+  if (reviews?.reviews.length === 0) {
+    return null;
+  }
+
   return (
     <div>
       <div className="mb-5">
-        <p>{reviews?.summary || 'No summary available.'}</p>
+        {reviews?.summary ? (
+          <p>{reviews.summary}</p>
+        ) : (
+          <Button>
+            <HiSparkles /> Summarize
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-5">
